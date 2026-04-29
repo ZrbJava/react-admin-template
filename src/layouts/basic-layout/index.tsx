@@ -54,10 +54,11 @@ export default function BasicLayout() {
 					<Content style={ContentStyle}>
 						<div
 							style={{
-								minHeight: 'calc(100vh - 88px)',
+								height: 'calc(100vh - 100px)',
 								padding: 16,
 								background: '#fff',
 								borderRadius: 8,
+								overflow: 'auto',
 							}}
 						>
 							<Outlet />
