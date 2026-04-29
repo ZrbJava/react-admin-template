@@ -1,0 +1,23 @@
+/**
+ * @Description: 
+ * @Author: zhaorubo
+ * @Email: zrbjava@gmail.com
+ * @Date: 2026-04-29 09:58:36
+ * @LastEditTime: 2026-04-29 09:59:08
+ * @LastEditors: zhaorubo
+ */
+html,
+body,
+#root {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+
+body {
+	font-family: Arial, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
