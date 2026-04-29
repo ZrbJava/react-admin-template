@@ -3,7 +3,7 @@
  * @Author: zhaorubo
  * @Email: zrbjava@gmail.com
  * @Date: 2026-04-29 10:21:56
- * @LastEditTime: 2026-04-29 17:38:29
+ * @LastEditTime: 2026-04-29 18:08:13
  * @LastEditors: zhaorubo
  */
 
@@ -78,58 +78,73 @@ const mockUsers: UserItem[] = [
 	},
 ]
 
-const columns: TableColumnsType<UserItem> = [
-	{
-		title: 'ID',
-		dataIndex: 'id',
-		key: 'id',
-	},
-	{
-		title: 'Name',
-		dataIndex: 'name',
-		key: 'name',
-	},
-	{
-		title: 'Email',
-		dataIndex: 'email',
-		key: 'email',
-	},
-	{
-		title: 'Role',
-		dataIndex: 'role',
-		key: 'role',
-	},
-	{
-		title: 'Status',
-		dataIndex: 'status',
-		key: 'status',
-		render: (status: UserItem['status']) =>
-			status === 'enabled' ? (
-				<Tag color='green'>Enabled</Tag>
-			) : (
-				<Tag color='red'>Disabled</Tag>
-			),
-	},
-	{
-		title: 'Action',
-		key: 'action',
-		render: (_, record) => (
-			<Space>
-				<Button type='link'>Edit</Button>
-				<Button type='link' danger>
-					Delete
-				</Button>
-			</Space>
-		),
-	},
-]
-
 function UserPage() {
 	const [keyword, setKeyword] = useState('')
 	const [status, setStatus] = useState<'all' | 'enabled' | 'disabled'>('all')
 	const [open, setOpen] = useState(false)
 	const [form] = Form.useForm()
 	const [users, setUsers] = useState<UserItem[]>(mockUsers)
+	const [currentUser, setCurrentUser] = useState<UserItem | null>(null)
+	const columns: TableColumnsType<UserItem> = [
+		{
+			title: 'ID',
+			dataIndex: 'id',
+			key: 'id',
+		},
+		{
+			title: 'Name',
+			dataIndex: 'name',
+			key: 'name',
+		},
+		{
+			title: 'Email',
+			dataIndex: 'email',
+			key: 'email',
+		},
+		{
+			title: 'Role',
+			dataIndex: 'role',
+			key: 'role',
+		},
+		{
+			title: 'Status',
+			dataIndex: 'status',
+			key: 'status',
+			render: (status: UserItem['status']) =>
+				status === 'enabled' ? (
+					<Tag color='green'>Enabled</Tag>
+				) : (
+					<Tag color='red'>Disabled</Tag>
+				),
+		},
+		{
+			title: 'Action',
+			key: 'action',
+			render: (_, record) => (
+				<Space>
+					<Button
+						type='link'
+						onClick={() => {
+							setCurrentUser(record)
+							form.setFieldsValue({
+								name: record.name,
+								email: record.email,
+								role: record.role,
+								status: record.status,
+							})
+							setOpen(true)
+						}}
+					>
+						Edit
+					</Button>
+
+					<Button type='link' danger>
+						Delete
+					</Button>
+				</Space>
+			),
+		},
+	]
 	const filteredUsers = users.filter(user => {
 		const matchKeyword = user.name.toLowerCase().includes(keyword.toLowerCase())
 		const matchStatus = status === 'all' ? true : user.status === status
@@ -148,7 +163,14 @@ function UserPage() {
 				}}
 			>
 				<h2 style={{ margin: 0 }}>User List</h2>
-				<Button type='primary' onClick={() => setOpen(true)}>
+				<Button
+					type='primary'
+					onClick={() => {
+						setCurrentUser(null)
+						form.resetFields()
+						setOpen(true)
+					}}
+				>
 					New User
 				</Button>
 			</div>
@@ -192,7 +214,7 @@ function UserPage() {
 				}}
 			/>
 			<Modal
-				title='New User'
+				title={currentUser ? `Edit User ` : 'New User'}
 				open={open}
 				onCancel={() => {
 					setOpen(false)
@@ -206,13 +228,28 @@ function UserPage() {
 					form={form}
 					layout='vertical'
 					onFinish={(values: Omit<UserItem, 'id'>) => {
-						const newUser: UserItem = {
-							id: Date.now(),
-							...values,
+						if (currentUser) {
+							setUsers(prev =>
+								prev.map(user =>
+									user.id === currentUser.id
+										? {
+												...user,
+												...values,
+											}
+										: user
+								)
+							)
+						} else {
+							const newUser: UserItem = {
+								id: Date.now(),
+								...values,
+							}
+
+							setUsers(prev => [newUser, ...prev])
 						}
 
-						setUsers(prev => [newUser, ...prev])
 						setOpen(false)
+						setCurrentUser(null)
 						form.resetFields()
 					}}
 				>
