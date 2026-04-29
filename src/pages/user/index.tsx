@@ -3,11 +3,11 @@
  * @Author: zhaorubo
  * @Email: zrbjava@gmail.com
  * @Date: 2026-04-29 10:21:56
- * @LastEditTime: 2026-04-29 17:20:27
+ * @LastEditTime: 2026-04-29 17:38:29
  * @LastEditors: zhaorubo
  */
 
-import { Button, Space, Table, Tag, Input, Select } from 'antd'
+import { Button, Space, Table, Tag, Input, Select, Modal, Form } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useState } from 'react'
 
@@ -127,7 +127,10 @@ const columns: TableColumnsType<UserItem> = [
 function UserPage() {
 	const [keyword, setKeyword] = useState('')
 	const [status, setStatus] = useState<'all' | 'enabled' | 'disabled'>('all')
-	const filteredUsers = mockUsers.filter(user => {
+	const [open, setOpen] = useState(false)
+	const [form] = Form.useForm()
+	const [users, setUsers] = useState<UserItem[]>(mockUsers)
+	const filteredUsers = users.filter(user => {
 		const matchKeyword = user.name.toLowerCase().includes(keyword.toLowerCase())
 		const matchStatus = status === 'all' ? true : user.status === status
 
@@ -145,7 +148,9 @@ function UserPage() {
 				}}
 			>
 				<h2 style={{ margin: 0 }}>User List</h2>
-				<Button type='primary'>New User</Button>
+				<Button type='primary' onClick={() => setOpen(true)}>
+					New User
+				</Button>
 			</div>
 			<Space style={{ marginBottom: 16 }} size={12}>
 				<Input
@@ -186,6 +191,77 @@ function UserPage() {
 					showSizeChanger: false,
 				}}
 			/>
+			<Modal
+				title='New User'
+				open={open}
+				onCancel={() => {
+					setOpen(false)
+					form.resetFields()
+				}}
+				onOk={() => {
+					form.submit()
+				}}
+			>
+				<Form
+					form={form}
+					layout='vertical'
+					onFinish={(values: Omit<UserItem, 'id'>) => {
+						const newUser: UserItem = {
+							id: Date.now(),
+							...values,
+						}
+
+						setUsers(prev => [newUser, ...prev])
+						setOpen(false)
+						form.resetFields()
+					}}
+				>
+					<Form.Item
+						label='Name'
+						name='name'
+						rules={[{ required: true, message: 'Please enter user name' }]}
+					>
+						<Input placeholder='Enter user name' />
+					</Form.Item>
+
+					<Form.Item
+						label='Email'
+						name='email'
+						rules={[{ required: true, message: 'Please enter email' }]}
+					>
+						<Input placeholder='Enter email' />
+					</Form.Item>
+
+					<Form.Item
+						label='Role'
+						name='role'
+						rules={[{ required: true, message: 'Please select role' }]}
+					>
+						<Select
+							placeholder='Select role'
+							options={[
+								{ label: 'Admin', value: 'Admin' },
+								{ label: 'Editor', value: 'Editor' },
+								{ label: 'Viewer', value: 'Viewer' },
+							]}
+						/>
+					</Form.Item>
+
+					<Form.Item
+						label='Status'
+						name='status'
+						rules={[{ required: true, message: 'Please select status' }]}
+					>
+						<Select
+							placeholder='Select status'
+							options={[
+								{ label: 'Enabled', value: 'enabled' },
+								{ label: 'Disabled', value: 'disabled' },
+							]}
+						/>
+					</Form.Item>
+				</Form>
+			</Modal>
 		</div>
 	)
 }
