@@ -3,12 +3,13 @@
  * @Author: zhaorubo
  * @Email: zrbjava@gmail.com
  * @Date: 2026-04-29 10:21:56
- * @LastEditTime: 2026-04-29 15:33:27
+ * @LastEditTime: 2026-04-29 17:20:27
  * @LastEditors: zhaorubo
  */
 
-import { Button, Space, Table, Tag } from 'antd'
+import { Button, Space, Table, Tag, Input, Select } from 'antd'
 import type { TableColumnsType } from 'antd'
+import { useState } from 'react'
 
 type UserItem = {
 	id: number
@@ -39,6 +40,41 @@ const mockUsers: UserItem[] = [
 		email: 'cindy@example.com',
 		role: 'Viewer',
 		status: 'enabled',
+	},
+	{
+		id: 4,
+		name: 'David',
+		email: 'david@example.com',
+		role: 'Admin',
+		status: 'enabled',
+	},
+	{
+		id: 5,
+		name: 'Emma',
+		email: 'emma@example.com',
+		role: 'Editor',
+		status: 'disabled',
+	},
+	{
+		id: 6,
+		name: 'Frank',
+		email: 'frank@example.com',
+		role: 'Viewer',
+		status: 'enabled',
+	},
+	{
+		id: 7,
+		name: 'Grace',
+		email: 'grace@example.com',
+		role: 'Editor',
+		status: 'enabled',
+	},
+	{
+		id: 8,
+		name: 'Henry',
+		email: 'henry@example.com',
+		role: 'Viewer',
+		status: 'disabled',
 	},
 ]
 
@@ -89,6 +125,15 @@ const columns: TableColumnsType<UserItem> = [
 ]
 
 function UserPage() {
+	const [keyword, setKeyword] = useState('')
+	const [status, setStatus] = useState<'all' | 'enabled' | 'disabled'>('all')
+	const filteredUsers = mockUsers.filter(user => {
+		const matchKeyword = user.name.toLowerCase().includes(keyword.toLowerCase())
+		const matchStatus = status === 'all' ? true : user.status === status
+
+		return matchKeyword && matchStatus
+	})
+
 	return (
 		<div>
 			<div
@@ -102,12 +147,44 @@ function UserPage() {
 				<h2 style={{ margin: 0 }}>User List</h2>
 				<Button type='primary'>New User</Button>
 			</div>
+			<Space style={{ marginBottom: 16 }} size={12}>
+				<Input
+					placeholder='Search by user name'
+					value={keyword}
+					onChange={event => setKeyword(event.target.value)}
+					style={{ width: 220 }}
+					allowClear
+				/>
+
+				<Select
+					value={status}
+					onChange={value => setStatus(value)}
+					style={{ width: 180 }}
+					options={[
+						{ label: 'All Status', value: 'all' },
+						{ label: 'Enabled', value: 'enabled' },
+						{ label: 'Disabled', value: 'disabled' },
+					]}
+				/>
+
+				<Button
+					onClick={() => {
+						setKeyword('')
+						setStatus('all')
+					}}
+				>
+					Reset
+				</Button>
+			</Space>
 
 			<Table<UserItem>
 				rowKey='id'
 				columns={columns}
-				dataSource={mockUsers}
-				pagination={false}
+				dataSource={filteredUsers}
+				pagination={{
+					pageSize: 10,
+					showSizeChanger: false,
+				}}
 			/>
 		</div>
 	)
