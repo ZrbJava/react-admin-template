@@ -24,7 +24,8 @@ function UserPage() {
 		try {
 			setLoading(true)
 			const data = await getUserList()
-			setUsers(data)
+			console.log(data)
+			setUsers(data.data)
 		} catch {
 			message.error('Failed to load users')
 		} finally {

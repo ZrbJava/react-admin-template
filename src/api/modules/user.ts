@@ -3,11 +3,13 @@
  * @Author: zhaorubo
  * @Email: zrbjava@gmail.com
  * @Date: 2026-04-30 11:29:02
- * @LastEditTime: 2026-04-30 14:46:36
+ * @LastEditTime: 2026-04-30 16:35:27
  * @LastEditors: zhaorubo
  */
 
 import type { UserFormValues, UserItem } from '../../types/user'
+
+import { createSuccessResponse } from '../../utils/http'
 
 let userStore: UserItem[] = [
 	{
@@ -76,7 +78,7 @@ function sleep(ms = 300) {
 
 export async function getUserList() {
 	await sleep()
-	return [...userStore]
+	return createSuccessResponse([...userStore])
 }
 
 export async function createUser(payload: UserFormValues) {
@@ -88,7 +90,7 @@ export async function createUser(payload: UserFormValues) {
 	}
 
 	userStore = [newUser, ...userStore]
-	return newUser
+	return createSuccessResponse(newUser)
 }
 
 export async function updateUser(id: number, payload: UserFormValues) {
@@ -113,12 +115,12 @@ export async function updateUser(id: number, payload: UserFormValues) {
 		throw new Error('User not found')
 	}
 
-	return updatedUser
+	return createSuccessResponse(updatedUser)
 }
 
 export async function deleteUser(id: number) {
 	await sleep()
 
 	userStore = userStore.filter(user => user.id !== id)
-	return true
+	return createSuccessResponse(true)
 }

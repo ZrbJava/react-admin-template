@@ -1,4 +1,4 @@
-import { Button, Popconfirm, Space, Tag, message } from 'antd'
+import { Button, Popconfirm, Space, Tag } from 'antd'
 import type { TableColumnsType } from 'antd'
 import type { UserItem } from '../../types/user'
 
