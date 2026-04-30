@@ -1,12 +1,9 @@
-/**
- * @Description:
- * @Author: zhaorubo
- * @Email: zrbjava@gmail.com
- * @Date: 2026-04-30 14:57:30
- * @LastEditTime: 2026-04-30 14:57:39
- * @LastEditors: zhaorubo
- */
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import {
+	getStorageUserInfo,
+	removeStorageUserInfo,
+	setStorageUserInfo,
+} from '../../utils/storage'
 
 export type LoginUserInfo = {
 	username: string
@@ -18,9 +15,11 @@ type UserState = {
 	isLogin: boolean
 }
 
+const cachedUserInfo = getStorageUserInfo() as LoginUserInfo | null
+
 const initialState: UserState = {
-	userInfo: null,
-	isLogin: false,
+	userInfo: cachedUserInfo,
+	isLogin: Boolean(cachedUserInfo),
 }
 
 const userSlice = createSlice({
@@ -30,10 +29,12 @@ const userSlice = createSlice({
 		setLogin(state, action: PayloadAction<LoginUserInfo>) {
 			state.userInfo = action.payload
 			state.isLogin = true
+			setStorageUserInfo(action.payload)
 		},
 		logout(state) {
 			state.userInfo = null
 			state.isLogin = false
+			removeStorageUserInfo()
 		},
 	},
 })
