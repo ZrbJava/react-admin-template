@@ -60,7 +60,6 @@ export function createUserColumns(
 						cancelText='Cancel'
 						onConfirm={() => {
 							onDelete(record)
-							message.success('User deleted successfully')
 						}}
 					>
 						<Button type='link' danger>

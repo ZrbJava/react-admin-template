@@ -1,16 +1,36 @@
-import { Button, Input, Select, Space, Table } from 'antd'
-import { useMemo, useState } from 'react'
+import { Button, Input, Select, Space, Table, message } from 'antd'
+import { useCallback, useMemo, useState } from 'react'
+import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
 import UserFormModal from './components/user-form-modal'
-import { initialUsers } from './mock'
+import {
+	createUser,
+	deleteUser,
+	getUserList,
+	updateUser,
+} from '../../api/modules/user'
 import type { UserFormValues, UserItem, UserStatus } from '../../types/user'
 
 function UserPage() {
-	const [users, setUsers] = useState<UserItem[]>(initialUsers)
+	const initialUsers = useLoaderData() as UserItem[]
+	const [users, setUsers] = useState<UserItem[]>(() => initialUsers)
+	const [loading, setLoading] = useState(false)
 	const [keyword, setKeyword] = useState('')
 	const [status, setStatus] = useState<'all' | UserStatus>('all')
 	const [open, setOpen] = useState(false)
 	const [currentUser, setCurrentUser] = useState<UserItem | null>(null)
+
+	const loadUsers = useCallback(async () => {
+		try {
+			setLoading(true)
+			const data = await getUserList()
+			setUsers(data)
+		} catch {
+			message.error('Failed to load users')
+		} finally {
+			setLoading(false)
+		}
+	}, [])
 
 	const filteredUsers = useMemo(() => {
 		return users.filter(user => {
@@ -23,49 +43,63 @@ function UserPage() {
 		})
 	}, [keyword, status, users])
 
-	const handleCreate = () => {
+	const handleCreate = useCallback(() => {
 		setCurrentUser(null)
 		setOpen(true)
-	}
+	}, [])
 
-	const handleEdit = (record: UserItem) => {
+	const handleEdit = useCallback((record: UserItem) => {
 		setCurrentUser(record)
 		setOpen(true)
-	}
+	}, [])
 
-	const handleDelete = (record: UserItem) => {
-		setUsers(prev => prev.filter(user => user.id !== record.id))
-	}
-
-	const handleCancel = () => {
-		setOpen(false)
-		setCurrentUser(null)
-	}
-
-	const handleSubmit = (values: UserFormValues) => {
-		if (currentUser) {
-			setUsers(prev =>
-				prev.map(user =>
-					user.id === currentUser.id
-						? {
-								...user,
-								...values,
-							}
-						: user
-				)
-			)
-		} else {
-			const newUser: UserItem = {
-				id: Date.now(),
-				...values,
+	const handleDelete = useCallback(
+		async (record: UserItem) => {
+			try {
+				setLoading(true)
+				await deleteUser(record.id)
+				await loadUsers()
+				message.success('User deleted successfully')
+			} catch {
+				message.error('Failed to delete user')
+			} finally {
+				setLoading(false)
 			}
+		},
+		[loadUsers]
+	)
 
-			setUsers(prev => [newUser, ...prev])
-		}
-
+	const handleCancel = useCallback(() => {
 		setOpen(false)
 		setCurrentUser(null)
-	}
+	}, [])
+
+	const handleSubmit = useCallback(
+		async (values: UserFormValues) => {
+			try {
+				setLoading(true)
+
+				if (currentUser) {
+					await updateUser(currentUser.id, values)
+					message.success('User updated successfully')
+				} else {
+					await createUser(values)
+					message.success('User created successfully')
+				}
+
+				setOpen(false)
+				setCurrentUser(null)
+				await loadUsers()
+			} catch {
+				message.error(
+					currentUser ? 'Failed to update user' : 'Failed to create user'
+				)
+			} finally {
+				setLoading(false)
+			}
+		},
+		[currentUser, loadUsers]
+	)
 
 	const columns = useMemo(
 		() =>
@@ -73,7 +107,7 @@ function UserPage() {
 				onEdit: handleEdit,
 				onDelete: handleDelete,
 			}),
-		[]
+		[handleDelete, handleEdit]
 	)
 
 	return (
@@ -125,6 +159,7 @@ function UserPage() {
 
 			<Table<UserItem>
 				rowKey='id'
+				loading={loading}
 				columns={columns}
 				dataSource={filteredUsers}
 				pagination={{

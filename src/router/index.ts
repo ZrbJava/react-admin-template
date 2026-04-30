@@ -10,6 +10,7 @@
 import { createBrowserRouter } from 'react-router-dom'
 import DashboardPage from '../pages/dashboard'
 import UserPage from '../pages/user'
+import { userListLoader } from '../pages/user/loader'
 import NotFoundPage from '../pages/not-found'
 import LoginPage from '../pages/login'
 import BasicLayout from '../layouts/basic-layout'
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
 			{
 				path: '/user',
 				Component: UserPage,
+				loader: userListLoader,
 			},
 		],
 	},
