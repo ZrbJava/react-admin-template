@@ -18,6 +18,10 @@ const menuItems: MenuProps['items'] = [
 		key: '/user',
 		label: 'User List',
 	},
+	{
+		key: '/role',
+		label: 'Role List',
+	},
 ]
 
 function BasicLayout() {

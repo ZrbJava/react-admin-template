@@ -9,6 +9,8 @@
 
 import { createBrowserRouter } from 'react-router-dom'
 import DashboardPage from '../pages/dashboard'
+import RolePage from '../pages/role'
+import { roleListLoader } from '../pages/role/loader'
 import UserPage from '../pages/user'
 import { userListLoader } from '../pages/user/loader'
 import NotFoundPage from '../pages/not-found'
@@ -33,6 +35,11 @@ export const router = createBrowserRouter([
 						path: '/user',
 						Component: UserPage,
 						loader: userListLoader,
+					},
+					{
+						path: '/role',
+						Component: RolePage,
+						loader: roleListLoader,
 					},
 				],
 			},
