@@ -1,8 +1,11 @@
-import { Button, Input, Select, Space, Table, message } from 'antd'
+import { Button, Table, message } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
 import UserFormModal from './components/user-form-modal'
+import UserFilter from './components/user-filter'
+import PageContainer from '../../components/page-container'
+import PageHeader from '../../components/page-header'
 import {
 	createUser,
 	deleteUser,
@@ -111,51 +114,27 @@ function UserPage() {
 	)
 
 	return (
-		<div>
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					marginBottom: 16,
+		<PageContainer>
+			<PageHeader
+				title='User List'
+				description='Manage user information in the practice admin system.'
+				extra={
+					<Button type='primary' onClick={handleCreate}>
+						New User
+					</Button>
+				}
+			/>
+
+			<UserFilter
+				keyword={keyword}
+				status={status}
+				onKeywordChange={setKeyword}
+				onStatusChange={setStatus}
+				onReset={() => {
+					setKeyword('')
+					setStatus('all')
 				}}
-			>
-				<h2 style={{ margin: 0 }}>User List</h2>
-
-				<Button type='primary' onClick={handleCreate}>
-					New User
-				</Button>
-			</div>
-
-			<Space style={{ marginBottom: 16 }} size={12}>
-				<Input
-					placeholder='Search by user name'
-					value={keyword}
-					onChange={event => setKeyword(event.target.value)}
-					style={{ width: 220 }}
-					allowClear
-				/>
-
-				<Select
-					value={status}
-					onChange={value => setStatus(value)}
-					style={{ width: 180 }}
-					options={[
-						{ label: 'All Status', value: 'all' },
-						{ label: 'Enabled', value: 'enabled' },
-						{ label: 'Disabled', value: 'disabled' },
-					]}
-				/>
-
-				<Button
-					onClick={() => {
-						setKeyword('')
-						setStatus('all')
-					}}
-				>
-					Reset
-				</Button>
-			</Space>
+			/>
 
 			<Table<UserItem>
 				rowKey='id'
@@ -174,7 +153,7 @@ function UserPage() {
 				onCancel={handleCancel}
 				onSubmit={handleSubmit}
 			/>
-		</div>
+		</PageContainer>
 	)
 }
 
