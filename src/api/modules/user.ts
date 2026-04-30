@@ -1,14 +1,5 @@
-/**
- * @Description:
- * @Author: zhaorubo
- * @Email: zrbjava@gmail.com
- * @Date: 2026-04-30 11:29:02
- * @LastEditTime: 2026-04-30 16:35:27
- * @LastEditors: zhaorubo
- */
-
+import type { ApiResponse } from '../../types/api'
 import type { UserFormValues, UserItem } from '../../types/user'
-
 import { createSuccessResponse } from '../../utils/http'
 
 let userStore: UserItem[] = [
@@ -76,12 +67,14 @@ function sleep(ms = 300) {
 	})
 }
 
-export async function getUserList() {
+export async function getUserList(): Promise<ApiResponse<UserItem[]>> {
 	await sleep()
 	return createSuccessResponse([...userStore])
 }
 
-export async function createUser(payload: UserFormValues) {
+export async function createUser(
+	payload: UserFormValues
+): Promise<ApiResponse<UserItem>> {
 	await sleep()
 
 	const newUser: UserItem = {
@@ -90,10 +83,13 @@ export async function createUser(payload: UserFormValues) {
 	}
 
 	userStore = [newUser, ...userStore]
-	return createSuccessResponse(newUser)
+	return createSuccessResponse(newUser, 'User created successfully')
 }
 
-export async function updateUser(id: number, payload: UserFormValues) {
+export async function updateUser(
+	id: number,
+	payload: UserFormValues
+): Promise<ApiResponse<UserItem>> {
 	await sleep()
 
 	let updatedUser: UserItem | null = null
@@ -115,12 +111,12 @@ export async function updateUser(id: number, payload: UserFormValues) {
 		throw new Error('User not found')
 	}
 
-	return createSuccessResponse(updatedUser)
+	return createSuccessResponse(updatedUser, 'User updated successfully')
 }
 
-export async function deleteUser(id: number) {
+export async function deleteUser(id: number): Promise<ApiResponse<boolean>> {
 	await sleep()
 
 	userStore = userStore.filter(user => user.id !== id)
-	return createSuccessResponse(true)
+	return createSuccessResponse(true, 'User deleted successfully')
 }
