@@ -23,9 +23,8 @@ function UserPage() {
 	const loadUsers = useCallback(async () => {
 		try {
 			setLoading(true)
-			const data = await getUserList()
-			console.log(data)
-			setUsers(data.data)
+			const response = await getUserList()
+			setUsers(response.data)
 		} catch {
 			message.error('Failed to load users')
 		} finally {
@@ -58,9 +57,9 @@ function UserPage() {
 		async (record: UserItem) => {
 			try {
 				setLoading(true)
-				await deleteUser(record.id)
+				const response = await deleteUser(record.id)
 				await loadUsers()
-				message.success('User deleted successfully')
+				message.success(response.message)
 			} catch {
 				message.error('Failed to delete user')
 			} finally {
@@ -81,11 +80,11 @@ function UserPage() {
 				setLoading(true)
 
 				if (currentUser) {
-					await updateUser(currentUser.id, values)
-					message.success('User updated successfully')
+					const response = await updateUser(currentUser.id, values)
+					message.success(response.message)
 				} else {
-					await createUser(values)
-					message.success('User created successfully')
+					const response = await createUser(values)
+					message.success(response.message)
 				}
 
 				setOpen(false)
