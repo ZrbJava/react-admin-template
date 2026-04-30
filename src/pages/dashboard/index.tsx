@@ -1,39 +1,67 @@
-/*
- * @Description:
- * @Author: zhaorubo
- * @Email: zrbjava@gmail.com
- * @Date: 2026-04-29 10:22:07
- * @LastEditTime: 2026-04-30 16:01:49
- * @LastEditors: zhaorubo
- */
-
+import { Card, Col, Row, Space, Statistic, Typography, Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { Button } from 'antd'
-import { useDispatch } from 'react-redux'
-import { logout } from '../../store/modules/user'
-import type { AppDispatch } from '../../store'
-export default function DashboardPage() {
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../store'
+
+const { Title, Text, Paragraph } = Typography
+
+function DashboardPage() {
 	const navigate = useNavigate()
-	const dispatch = useDispatch<AppDispatch>()
+	const userInfo = useSelector((state: RootState) => state.user.userInfo)
+
 	return (
-		<div>
-			<Button
-				type='primary'
-				onClick={() => {
-					navigate('/login')
-				}}
-			>
-				返回登陆
-			</Button>
-			<Button
-				type='primary'
-				onClick={() => {
-					dispatch(logout())
-				}}
-			>
-				退出登陆
-			</Button>
-			<div>仪表盘页</div>
-		</div>
+		<Space direction='vertical' size={16} style={{ width: '100%' }}>
+			<Card>
+				<Title level={3} style={{ marginTop: 0, marginBottom: 8 }}>
+					Welcome back, {userInfo?.username ?? 'Guest'}
+				</Title>
+
+				<Paragraph style={{ marginBottom: 8 }}>
+					This is your first React admin practice dashboard.
+				</Paragraph>
+
+				<Text type='secondary'>
+					Current role: {userInfo?.role ?? 'Unknown'}
+				</Text>
+			</Card>
+
+			<Row gutter={[16, 16]}>
+				<Col xs={24} sm={12} lg={6}>
+					<Card>
+						<Statistic title='Users' value={128} />
+					</Card>
+				</Col>
+
+				<Col xs={24} sm={12} lg={6}>
+					<Card>
+						<Statistic title='Orders' value={56} />
+					</Card>
+				</Col>
+
+				<Col xs={24} sm={12} lg={6}>
+					<Card>
+						<Statistic title='Revenue' value={23560} prefix='$' />
+					</Card>
+				</Col>
+
+				<Col xs={24} sm={12} lg={6}>
+					<Card>
+						<Statistic title='Conversion' value={78.2} suffix='%' />
+					</Card>
+				</Col>
+			</Row>
+
+			<Card title='Quick Actions'>
+				<Space wrap>
+					<Button type='primary' onClick={() => navigate('/user')}>
+						Go to User List
+					</Button>
+
+					<Button onClick={() => navigate('/')}>Refresh Dashboard View</Button>
+				</Space>
+			</Card>
+		</Space>
 	)
 }
+
+export default DashboardPage
