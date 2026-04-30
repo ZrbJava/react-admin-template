@@ -120,17 +120,14 @@ function BasicLayout() {
 					</Space>
 				</Header>
 
-				<Content style={{ padding: 16, background: '#f5f5f5' }}>
-					<div
-						style={{
-							minHeight: 'calc(100vh - 88px)',
-							padding: 16,
-							background: '#fff',
-							borderRadius: 8,
-						}}
-					>
-						<Outlet />
-					</div>
+				<Content
+					style={{
+						padding: 16,
+						background: '#f5f5f5',
+						minHeight: 'calc(100vh - 64px)',
+					}}
+				>
+					<Outlet />
 				</Content>
 			</Layout>
 		</Layout>
