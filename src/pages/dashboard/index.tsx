@@ -1,23 +1,31 @@
-import { Card, Col, Row, Space, Statistic, Typography, Button } from 'antd'
+import { Button, Card, Col, Row, Space, Statistic, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import PageContainer from '../../components/page-container'
+import PageHeader from '../../components/page-header'
 import type { RootState } from '../../store'
 
-const { Title, Text, Paragraph } = Typography
+const { Text, Paragraph } = Typography
 
 function DashboardPage() {
 	const navigate = useNavigate()
 	const userInfo = useSelector((state: RootState) => state.user.userInfo)
 
 	return (
-		<Space direction='vertical' size={16} style={{ width: '100%' }}>
-			<Card>
-				<Title level={3} style={{ marginTop: 0, marginBottom: 8 }}>
-					Welcome back, {userInfo?.username ?? 'Guest'}
-				</Title>
+		<PageContainer>
+			<PageHeader
+				title='Dashboard'
+				description='Overview of your React admin practice project.'
+				extra={
+					<Button type='primary' onClick={() => navigate('/user')}>
+						Go to User List
+					</Button>
+				}
+			/>
 
+			<Card>
 				<Paragraph style={{ marginBottom: 8 }}>
-					This is your first React admin practice dashboard.
+					Welcome back, <strong>{userInfo?.username ?? 'Guest'}</strong>.
 				</Paragraph>
 
 				<Text type='secondary'>
@@ -56,11 +64,10 @@ function DashboardPage() {
 					<Button type='primary' onClick={() => navigate('/user')}>
 						Go to User List
 					</Button>
-
 					<Button onClick={() => navigate('/')}>Refresh Dashboard View</Button>
 				</Space>
 			</Card>
-		</Space>
+		</PageContainer>
 	)
 }
 
