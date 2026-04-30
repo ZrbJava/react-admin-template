@@ -1,5 +1,5 @@
-import { Layout, Menu, Space, Typography, Avatar, Dropdown } from 'antd'
-import { LogoutOutlined } from '@ant-design/icons'
+import { Breadcrumb, Layout, Menu, Space, Typography, Avatar, Dropdown } from 'antd'
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,16 +24,36 @@ const menuItems: MenuProps['items'] = [
 	},
 ]
 
+const pageTitleMap: Record<string, string> = {
+	'/': 'Dashboard',
+	'/user': 'User List',
+	'/role': 'Role List',
+}
+
 function BasicLayout() {
 	const location = useLocation()
 	const navigate = useNavigate()
 	const dispatch = useDispatch<AppDispatch>()
 	const userInfo = useSelector((state: RootState) => state.user.userInfo)
+	const currentPageTitle = pageTitleMap[location.pathname] ?? 'Admin Console'
+	const breadcrumbItems =
+		location.pathname === '/'
+			? [{ title: 'Dashboard' }]
+			: [{ title: 'Dashboard' }, { title: currentPageTitle }]
 
 	const handleLogout = () => {
 		dispatch(logout())
 		navigate('/login')
 	}
+
+	const dropdownItems: MenuProps['items'] = [
+		{
+			key: 'logout',
+			label: 'Logout',
+			onClick: handleLogout,
+			icon: <LogoutOutlined />,
+		},
+	]
 
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
@@ -72,34 +92,30 @@ function BasicLayout() {
 						justifyContent: 'space-between',
 					}}
 				>
-					<Text strong>Admin Console</Text>
+					<Breadcrumb items={breadcrumbItems} />
 
 					<Space size={12}>
+						<Space size={8}>
+							<Avatar size={40} icon={!userInfo?.username ? <UserOutlined /> : undefined}>
+								{userInfo?.username?.charAt(0).toUpperCase()}
+							</Avatar>
+
+							<div style={{ lineHeight: 1.2 }}>
+								<div>
+									<Text strong>{userInfo?.username ?? 'Guest'}</Text>
+								</div>
+								<Text type='secondary'>{userInfo?.role ?? 'Unknown role'}</Text>
+							</div>
+						</Space>
+
 						<Dropdown
-							menu={{
-								items: [
-									{
-										key: 'logout',
-										label: 'Logout',
-										onClick: handleLogout,
-										icon: <LogoutOutlined />,
-									},
-									{
-										key: 'logout2',
-										label: 'Logout2',
-										onClick: handleLogout,
-										icon: <LogoutOutlined />,
-									},
-									{
-										key: 'logout3',
-										label: 'Logout3',
-										onClick: handleLogout,
-										icon: <LogoutOutlined />,
-									},
-								],
-							}}
+							menu={{ items: dropdownItems }}
+							placement='bottomRight'
+							trigger={['click']}
 						>
-							<Avatar size={40}>{userInfo?.username?.charAt(0)}</Avatar>
+							<Avatar style={{ cursor: 'pointer', backgroundColor: '#1677ff' }}>
+								{userInfo?.username?.charAt(0).toUpperCase() ?? 'U'}
+							</Avatar>
 						</Dropdown>
 					</Space>
 				</Header>
