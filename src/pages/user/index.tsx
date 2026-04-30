@@ -1,4 +1,4 @@
-import { Button, Table, message } from 'antd'
+import { Button, Card, Table, message } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
@@ -125,27 +125,29 @@ function UserPage() {
 				}
 			/>
 
-			<UserFilter
-				keyword={keyword}
-				status={status}
-				onKeywordChange={setKeyword}
-				onStatusChange={setStatus}
-				onReset={() => {
-					setKeyword('')
-					setStatus('all')
-				}}
-			/>
+			<Card>
+				<UserFilter
+					keyword={keyword}
+					status={status}
+					onKeywordChange={setKeyword}
+					onStatusChange={setStatus}
+					onReset={() => {
+						setKeyword('')
+						setStatus('all')
+					}}
+				/>
 
-			<Table<UserItem>
-				rowKey='id'
-				loading={loading}
-				columns={columns}
-				dataSource={filteredUsers}
-				pagination={{
-					pageSize: 5,
-					showSizeChanger: false,
-				}}
-			/>
+				<Table<UserItem>
+					rowKey='id'
+					loading={loading}
+					columns={columns}
+					dataSource={filteredUsers}
+					pagination={{
+						pageSize: 5,
+						showSizeChanger: false,
+					}}
+				/>
+			</Card>
 
 			<UserFormModal
 				open={open}
