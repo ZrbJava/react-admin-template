@@ -1,8 +1,12 @@
 import { Breadcrumb, Layout, Menu, Space, Typography, Avatar, Dropdown } from 'antd'
 import {
+	DashboardOutlined,
+	SettingOutlined,
 	LogoutOutlined,
 	MenuFoldOutlined,
 	MenuUnfoldOutlined,
+	ShoppingCartOutlined,
+	TeamOutlined,
 	UserOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
@@ -18,22 +22,70 @@ const { Text } = Typography
 const menuItems: MenuProps['items'] = [
 	{
 		key: '/',
+		icon: <DashboardOutlined />,
 		label: 'Dashboard',
 	},
 	{
-		key: '/user',
-		label: 'User List',
+		key: 'system',
+		icon: <TeamOutlined />,
+		label: 'System Management',
+		children: [
+			{
+				key: '/user',
+				label: 'User List',
+			},
+			{
+				key: '/role',
+				label: 'Role List',
+			},
+		],
 	},
 	{
-		key: '/role',
-		label: 'Role List',
+		key: 'business',
+		icon: <ShoppingCartOutlined />,
+		label: 'Business Management',
+		children: [
+			{
+				key: '/order',
+				label: 'Order List',
+				disabled: true,
+			},
+			{
+				key: '/product',
+				label: 'Product List',
+				disabled: true,
+			},
+		],
+	},
+	{
+		key: 'settings',
+		icon: <SettingOutlined />,
+		label: 'Settings',
+		children: [
+			{
+				key: '/profile',
+				label: 'Profile',
+				disabled: true,
+			},
+			{
+				key: '/audit-log',
+				label: 'Audit Logs',
+				disabled: true,
+			},
+		],
 	},
 ]
 
-const pageTitleMap: Record<string, string> = {
-	'/': 'Dashboard',
-	'/user': 'User List',
-	'/role': 'Role List',
+const breadcrumbMap: Record<string, { parent?: string; current: string }> = {
+	'/': { current: 'Dashboard' },
+	'/user': { parent: 'System Management', current: 'User List' },
+	'/role': { parent: 'System Management', current: 'Role List' },
+}
+
+const menuOpenKeyMap: Record<string, string[]> = {
+	'/': [],
+	'/user': ['system'],
+	'/role': ['system'],
 }
 
 function BasicLayout() {
@@ -42,11 +94,11 @@ function BasicLayout() {
 	const dispatch = useDispatch<AppDispatch>()
 	const userInfo = useSelector((state: RootState) => state.user.userInfo)
 	const [collapsed, setCollapsed] = useState(false)
-	const currentPageTitle = pageTitleMap[location.pathname] ?? 'Admin Console'
-	const breadcrumbItems =
-		location.pathname === '/'
-			? [{ title: 'Dashboard' }]
-			: [{ title: 'Dashboard' }, { title: currentPageTitle }]
+	const breadcrumbConfig = breadcrumbMap[location.pathname]
+	const breadcrumbItems = breadcrumbConfig?.parent
+		? [{ title: 'Dashboard' }, { title: breadcrumbConfig.parent }, { title: breadcrumbConfig.current }]
+		: [{ title: breadcrumbConfig?.current ?? 'Dashboard' }]
+	const openKeys = menuOpenKeyMap[location.pathname] ?? []
 
 	const handleLogout = () => {
 		dispatch(logout())
@@ -84,6 +136,7 @@ function BasicLayout() {
 					theme='dark'
 					mode='inline'
 					selectedKeys={[location.pathname]}
+					defaultOpenKeys={openKeys}
 					items={menuItems}
 					onClick={({ key }) => navigate(key)}
 				/>
