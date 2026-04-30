@@ -1,6 +1,12 @@
 import { Breadcrumb, Layout, Menu, Space, Typography, Avatar, Dropdown } from 'antd'
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import {
+	LogoutOutlined,
+	MenuFoldOutlined,
+	MenuUnfoldOutlined,
+	UserOutlined,
+} from '@ant-design/icons'
 import type { MenuProps } from 'antd'
+import { useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../../store/modules/user'
@@ -35,6 +41,7 @@ function BasicLayout() {
 	const navigate = useNavigate()
 	const dispatch = useDispatch<AppDispatch>()
 	const userInfo = useSelector((state: RootState) => state.user.userInfo)
+	const [collapsed, setCollapsed] = useState(false)
 	const currentPageTitle = pageTitleMap[location.pathname] ?? 'Admin Console'
 	const breadcrumbItems =
 		location.pathname === '/'
@@ -57,19 +64,20 @@ function BasicLayout() {
 
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
-			<Sider width={220}>
+			<Sider width={220} collapsible collapsed={collapsed} trigger={null}>
 				<div
 					style={{
 						height: 56,
 						color: '#fff',
 						display: 'flex',
 						alignItems: 'center',
-						padding: '0 16px',
-						fontSize: 18,
+						justifyContent: collapsed ? 'center' : 'flex-start',
+						padding: collapsed ? 0 : '0 16px',
+						fontSize: collapsed ? 20 : 18,
 						fontWeight: 600,
 					}}
 				>
-					React Admin
+					{collapsed ? 'RA' : 'React Admin'}
 				</div>
 
 				<Menu
@@ -92,7 +100,24 @@ function BasicLayout() {
 						justifyContent: 'space-between',
 					}}
 				>
-					<Breadcrumb items={breadcrumbItems} />
+					<Space size={16}>
+						<div
+							onClick={() => setCollapsed(prev => !prev)}
+							style={{
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: 36,
+								height: 36,
+								cursor: 'pointer',
+								borderRadius: 8,
+							}}
+						>
+							{collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+						</div>
+
+						<Breadcrumb items={breadcrumbItems} />
+					</Space>
 
 					<Space size={12}>
 						<Space size={8}>
