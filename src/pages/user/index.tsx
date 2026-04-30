@@ -1,4 +1,4 @@
-import { Button, Card, Table, message } from 'antd'
+import { Button, Card, Empty, Space, Table, Tag, Typography, message } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
@@ -13,6 +13,8 @@ import {
 	updateUser,
 } from '../../api/modules/user'
 import type { UserFormValues, UserItem, UserStatus } from '../../types/user'
+
+const { Text } = Typography
 
 function UserPage() {
 	const initialUsers = useLoaderData() as UserItem[]
@@ -113,6 +115,8 @@ function UserPage() {
 		[handleDelete, handleEdit]
 	)
 
+	const hasFilters = keyword.trim().length > 0 || status !== 'all'
+
 	return (
 		<PageContainer>
 			<PageHeader
@@ -137,11 +141,51 @@ function UserPage() {
 					}}
 				/>
 
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: 16,
+						gap: 12,
+						flexWrap: 'wrap',
+					}}
+				>
+					<Space size={8} wrap>
+						<Text type='secondary'>Total users: {users.length}</Text>
+						<Text type='secondary'>Filtered: {filteredUsers.length}</Text>
+						{hasFilters ? <Tag color='blue'>Filters Applied</Tag> : null}
+					</Space>
+
+					{hasFilters ? (
+						<Button
+							type='link'
+							onClick={() => {
+								setKeyword('')
+								setStatus('all')
+							}}
+						>
+							Clear Filters
+						</Button>
+					) : null}
+				</div>
+
 				<Table<UserItem>
 					rowKey='id'
 					loading={loading}
 					columns={columns}
 					dataSource={filteredUsers}
+					locale={{
+						emptyText: (
+							<Empty
+								description={
+									hasFilters
+										? 'No users match the current filters'
+										: 'No user data yet'
+								}
+							/>
+						),
+					}}
 					pagination={{
 						pageSize: 5,
 						showSizeChanger: false,
