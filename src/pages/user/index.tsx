@@ -1,9 +1,10 @@
-import { Button, Table, message } from 'antd'
+import { Button, message } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
 import UserFormModal from './components/user-form-modal'
 import UserFilter from './components/user-filter'
+import DataTable from '../../components/data-table'
 import { createListEmpty } from '../../components/list-section/create-list-empty'
 import ListSection from '../../components/list-section'
 import PageContainer from '../../components/page-container'
@@ -152,21 +153,15 @@ function UserPage() {
 				emptyDescription='No user data yet'
 				filteredEmptyDescription='No users match the current filters'
 			>
-				<Table<UserItem>
+				<DataTable<UserItem>
 					rowKey='id'
 					loading={loading}
 					columns={columns}
 					dataSource={filteredUsers}
-					locale={{
-						emptyText: createListEmpty(hasFilters, {
-							emptyDescription: 'No user data yet',
-							filteredEmptyDescription: 'No users match the current filters',
-						}),
-					}}
-					pagination={{
-						pageSize: 5,
-						showSizeChanger: false,
-					}}
+					emptyText={createListEmpty(hasFilters, {
+						emptyDescription: 'No user data yet',
+						filteredEmptyDescription: 'No users match the current filters',
+					})}
 				/>
 			</ListSection>
 
