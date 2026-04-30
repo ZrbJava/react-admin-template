@@ -14,25 +14,39 @@ import { userListLoader } from '../pages/user/loader'
 import NotFoundPage from '../pages/not-found'
 import LoginPage from '../pages/login'
 import BasicLayout from '../layouts/basic-layout'
+import { ProtectedRoute, PublicRoute } from './router-guard'
+
 export const router = createBrowserRouter([
 	{
 		path: '/',
-		Component: BasicLayout,
+		Component: ProtectedRoute,
 		children: [
 			{
-				index: true,
-				Component: DashboardPage,
-			},
-			{
-				path: '/user',
-				Component: UserPage,
-				loader: userListLoader,
+				path: '/',
+				Component: BasicLayout,
+				children: [
+					{
+						index: true,
+						Component: DashboardPage,
+					},
+					{
+						path: '/user',
+						Component: UserPage,
+						loader: userListLoader,
+					},
+				],
 			},
 		],
 	},
 	{
 		path: '/login',
-		Component: LoginPage,
+		Component: PublicRoute,
+		children: [
+			{
+				index: true,
+				Component: LoginPage,
+			},
+		],
 	},
 	{
 		path: '*',
