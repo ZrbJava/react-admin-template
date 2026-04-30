@@ -1,9 +1,11 @@
-import { Button, Card, Empty, Space, Table, Tag, Typography, message } from 'antd'
+import { Button, Table, message } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
 import { createUserColumns } from './columns'
 import UserFormModal from './components/user-form-modal'
 import UserFilter from './components/user-filter'
+import { createListEmpty } from '../../components/list-section/create-list-empty'
+import ListSection from '../../components/list-section'
 import PageContainer from '../../components/page-container'
 import PageHeader from '../../components/page-header'
 import {
@@ -13,8 +15,6 @@ import {
 	updateUser,
 } from '../../api/modules/user'
 import type { UserFormValues, UserItem, UserStatus } from '../../types/user'
-
-const { Text } = Typography
 
 function UserPage() {
 	const initialUsers = useLoaderData() as UserItem[]
@@ -129,69 +129,46 @@ function UserPage() {
 				}
 			/>
 
-			<Card>
-				<UserFilter
-					keyword={keyword}
-					status={status}
-					onKeywordChange={setKeyword}
-					onStatusChange={setStatus}
-					onReset={() => {
-						setKeyword('')
-						setStatus('all')
-					}}
-				/>
-
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						marginBottom: 16,
-						gap: 12,
-						flexWrap: 'wrap',
-					}}
-				>
-					<Space size={8} wrap>
-						<Text type='secondary'>Total users: {users.length}</Text>
-						<Text type='secondary'>Filtered: {filteredUsers.length}</Text>
-						{hasFilters ? <Tag color='blue'>Filters Applied</Tag> : null}
-					</Space>
-
-					{hasFilters ? (
-						<Button
-							type='link'
-							onClick={() => {
-								setKeyword('')
-								setStatus('all')
-							}}
-						>
-							Clear Filters
-						</Button>
-					) : null}
-				</div>
-
+			<ListSection
+				filter={
+					<UserFilter
+						keyword={keyword}
+						status={status}
+						onKeywordChange={setKeyword}
+						onStatusChange={setStatus}
+						onReset={() => {
+							setKeyword('')
+							setStatus('all')
+						}}
+					/>
+				}
+				total={users.length}
+				filteredTotal={filteredUsers.length}
+				hasFilters={hasFilters}
+				onClearFilters={() => {
+					setKeyword('')
+					setStatus('all')
+				}}
+				emptyDescription='No user data yet'
+				filteredEmptyDescription='No users match the current filters'
+			>
 				<Table<UserItem>
 					rowKey='id'
 					loading={loading}
 					columns={columns}
 					dataSource={filteredUsers}
 					locale={{
-						emptyText: (
-							<Empty
-								description={
-									hasFilters
-										? 'No users match the current filters'
-										: 'No user data yet'
-								}
-							/>
-						),
+						emptyText: createListEmpty(hasFilters, {
+							emptyDescription: 'No user data yet',
+							filteredEmptyDescription: 'No users match the current filters',
+						}),
 					}}
 					pagination={{
 						pageSize: 5,
 						showSizeChanger: false,
 					}}
 				/>
-			</Card>
+			</ListSection>
 
 			<UserFormModal
 				open={open}
