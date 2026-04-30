@@ -1,6 +1,7 @@
-import { Button } from 'antd'
-import { useMemo, useState } from 'react'
+import { Button, message } from 'antd'
+import { useCallback, useMemo, useState } from 'react'
 import { useLoaderData } from 'react-router-dom'
+import { getRoleList } from '../../api/modules/role'
 import DataTable from '../../components/data-table'
 import { createListEmpty } from '../../components/list-section/create-list-empty'
 import ListSection from '../../components/list-section'
@@ -12,11 +13,25 @@ import type { RoleItem, RoleStatus } from '../../types/role'
 
 function RolePage() {
 	const initialRoles = useLoaderData() as RoleItem[]
+	const [roles, setRoles] = useState<RoleItem[]>(() => initialRoles)
+	const [loading, setLoading] = useState(false)
 	const [keyword, setKeyword] = useState('')
 	const [status, setStatus] = useState<'all' | RoleStatus>('all')
 
+	const loadRoles = useCallback(async () => {
+		try {
+			setLoading(true)
+			const response = await getRoleList()
+			setRoles(response.data)
+		} catch {
+			message.error('Failed to load roles')
+		} finally {
+			setLoading(false)
+		}
+	}, [])
+
 	const filteredRoles = useMemo(() => {
-		return initialRoles.filter(role => {
+		return roles.filter(role => {
 			const matchKeyword = role.name
 				.toLowerCase()
 				.includes(keyword.trim().toLowerCase())
@@ -24,7 +39,7 @@ function RolePage() {
 
 			return matchKeyword && matchStatus
 		})
-	}, [initialRoles, keyword, status])
+	}, [keyword, roles, status])
 
 	const hasFilters = keyword.trim().length > 0 || status !== 'all'
 
@@ -33,7 +48,7 @@ function RolePage() {
 			<PageHeader
 				title='Role List'
 				description='View platform roles and their current status.'
-				extra={<Button disabled>Add Role</Button>}
+				extra={<Button onClick={() => void loadRoles()}>Refresh Roles</Button>}
 			/>
 
 			<ListSection
@@ -49,7 +64,7 @@ function RolePage() {
 						}}
 					/>
 				}
-				total={initialRoles.length}
+				total={roles.length}
 				filteredTotal={filteredRoles.length}
 				hasFilters={hasFilters}
 				onClearFilters={() => {
@@ -61,6 +76,7 @@ function RolePage() {
 			>
 				<DataTable<RoleItem>
 					rowKey='id'
+					loading={loading}
 					columns={roleColumns}
 					dataSource={filteredRoles}
 					emptyText={createListEmpty(hasFilters, {

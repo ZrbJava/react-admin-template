@@ -1,5 +1,6 @@
-import { roleList } from './mock'
+import { getRoleList } from '../../api/modules/role'
 
 export async function roleListLoader() {
-	return roleList
+	const response = await getRoleList()
+	return response.data
 }
