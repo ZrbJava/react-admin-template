@@ -3,14 +3,24 @@
  * @Author: zhaorubo
  * @Email: zrbjava@gmail.com
  * @Date: 2026-04-29 10:21:56
- * @LastEditTime: 2026-04-29 18:08:13
+ * @LastEditTime: 2026-04-30 09:46:30
  * @LastEditors: zhaorubo
  */
 
-import { Button, Space, Table, Tag, Input, Select, Modal, Form } from 'antd'
+import {
+	Button,
+	Space,
+	Table,
+	Tag,
+	Input,
+	Select,
+	Modal,
+	Form,
+	message,
+} from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useState } from 'react'
-
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 type UserItem = {
 	id: number
 	name: string
@@ -85,6 +95,23 @@ function UserPage() {
 	const [form] = Form.useForm()
 	const [users, setUsers] = useState<UserItem[]>(mockUsers)
 	const [currentUser, setCurrentUser] = useState<UserItem | null>(null)
+	const [modal, contextHolder] = Modal.useModal()
+
+	const handleDelete = (record: UserItem) => {
+		console.log('record', record, contextHolder)
+		modal.confirm({
+			title: '删除用户',
+			icon: <ExclamationCircleOutlined />,
+			content: `确定删除用户${record.name}吗?`,
+			onOk: () => {
+				setUsers(prev => prev.filter(user => user.id !== record.id))
+				message.success(`删除用户${record.name}成功`)
+			},
+			onCancel: () => {
+				console.log('取消')
+			},
+		})
+	}
 	const columns: TableColumnsType<UserItem> = [
 		{
 			title: 'ID',
@@ -138,7 +165,7 @@ function UserPage() {
 						Edit
 					</Button>
 
-					<Button type='link' danger>
+					<Button type='link' danger onClick={() => handleDelete(record)}>
 						Delete
 					</Button>
 				</Space>
@@ -299,6 +326,7 @@ function UserPage() {
 					</Form.Item>
 				</Form>
 			</Modal>
+			{contextHolder}
 		</div>
 	)
 }
